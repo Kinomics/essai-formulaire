@@ -1,0 +1,871 @@
+<!-- ============================================================
+     KinoLabs_Form_Page_v1 — Formulaire de contact autonome
+     Un seul fichier. Aucune dépendance externe.
+     Tout se règle dans l'objet CONFIG ci-dessous.
+     ============================================================ -->
+
+<style>
+/* ---- Tout est préfixé .kf- et enfermé dans .kf-root : rien ne fuit vers la page hôte ---- */
+.kf-root{
+  --kf-c:#1f6feb;            /* couleur de marque (surchargée par CONFIG) */
+  --kf-ct:#ffffff;           /* texte sur la couleur de marque */
+  --kf-txt:#161b22;
+  --kf-mut:#59636e;
+  --kf-bd:#c2c8d0;
+  --kf-bg:#ffffff;
+  --kf-soft:#f4f6f8;
+  --kf-err:#a4231c;
+  --kf-ok:#0f7038;
+  color-scheme:light;
+  box-sizing:border-box;
+  max-width:660px;
+  margin:0 auto;
+  padding:28px 24px 24px;
+  background:var(--kf-bg);
+  color:var(--kf-txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  font-size:16px;
+  line-height:1.5;
+  text-align:left;
+  border:1px solid var(--kf-bd);
+  border-radius:14px;
+}
+.kf-root *,.kf-root *::before,.kf-root *::after{box-sizing:border-box;}
+.kf-root p,.kf-root ul,.kf-root li,.kf-root fieldset,.kf-root legend{margin:0;padding:0;}
+.kf-hidden{display:none !important;}
+
+/* En-tête */
+.kf-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.kf-logo{max-height:44px;max-width:180px;width:auto;height:auto;display:block;}
+.kf-brand{font-weight:700;font-size:1.05rem;color:var(--kf-txt);}
+/* Les règles ci-dessous sont écrites .kf-root .kf-x : sans cela, la remise à
+   zéro « .kf-root p » ci-dessus serait plus forte et écraserait les marges. */
+.kf-root .kf-title{font-size:1.4rem;line-height:1.3;font-weight:700;margin:0 0 8px;letter-spacing:-.01em;}
+.kf-root .kf-sub{color:var(--kf-mut);font-size:.95rem;line-height:1.55;margin:0 0 28px;}
+
+/* Progression — bloc détaché de l'accroche pour respirer */
+.kf-root .kf-prog{font-size:.82rem;font-weight:600;color:var(--kf-mut);margin:0 0 10px;}
+.kf-bar{height:6px;border-radius:99px;background:var(--kf-soft);overflow:hidden;margin-bottom:28px;}
+.kf-bar-in{height:100%;width:0;background:var(--kf-c);border-radius:99px;transition:width .25s ease;}
+
+/* Étapes et champs */
+.kf-root .kf-step-title{font-size:1.08rem;font-weight:700;margin:0 0 18px;}
+.kf-field{margin:0 0 18px;}
+.kf-label{display:block;font-weight:600;font-size:.95rem;margin-bottom:6px;}
+.kf-req{color:var(--kf-err);margin-left:2px;}
+.kf-help{display:block;font-size:.83rem;color:var(--kf-mut);margin-bottom:6px;}
+.kf-in,.kf-ta,.kf-sel{
+  display:block;width:100%;min-height:44px;padding:11px 12px;
+  font:inherit;color:var(--kf-txt);background:var(--kf-bg);
+  border:1px solid var(--kf-bd);border-radius:8px;appearance:none;
+}
+.kf-ta{min-height:110px;resize:vertical;}
+.kf-sel{background-image:linear-gradient(45deg,transparent 50%,var(--kf-mut) 50%),linear-gradient(135deg,var(--kf-mut) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:38px;}
+.kf-in:focus,.kf-ta:focus,.kf-sel:focus,.kf-root .kf-btn:focus,.kf-opt input:focus{
+  outline:3px solid var(--kf-c);outline-offset:2px;}
+.kf-root .kf-set{border:0;}
+.kf-root .kf-legend{display:block;font-weight:600;font-size:.95rem;margin-bottom:6px;padding:0;}
+.kf-opt{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 2px;cursor:pointer;font-size:.97rem;}
+.kf-opt input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--kf-c);margin:0;cursor:pointer;}
+.kf-invalid .kf-in,.kf-invalid .kf-ta,.kf-invalid .kf-sel{border-color:var(--kf-err);}
+.kf-root .kf-msg-err{color:var(--kf-err);font-size:.85rem;margin-top:6px;font-weight:600;}
+
+/* Lien « effacer » des groupes de boutons radio facultatifs.
+   Masqué tant que rien n'est coché : un bouton radio ne se déscoche pas,
+   et un champ facultatif doit pouvoir revenir à vide. */
+.kf-root .kf-clear{
+  display:none;margin:2px 0 0 30px;padding:0;border:0;background:none;
+  font:inherit;font-size:.85rem;color:var(--kf-mut);
+  text-decoration:underline;cursor:pointer;
+}
+.kf-root .kf-clear.kf-on{display:inline-block;}
+.kf-root .kf-clear:hover{color:var(--kf-txt);}
+.kf-root .kf-clear:focus-visible{outline:3px solid var(--kf-c);outline-offset:2px;}
+
+/* RGPD */
+.kf-rgpd{border-top:1px solid var(--kf-bd);padding-top:14px;margin-top:4px;}
+.kf-rgpd .kf-opt{align-items:flex-start;}
+.kf-rgpd .kf-opt input{margin-top:11px;}
+.kf-rgpd a{color:var(--kf-c);}
+
+/* Piège à robots — invisible pour l'humain, présent pour le robot */
+.kf-hp{position:absolute !important;left:-9999px !important;top:auto !important;width:1px !important;height:1px !important;overflow:hidden !important;opacity:0 !important;}
+
+/* Boutons */
+.kf-nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px;}
+.kf-btn{
+  min-height:48px;min-width:120px;padding:12px 22px;
+  font:inherit;font-weight:600;border-radius:9px;cursor:pointer;
+  border:1px solid var(--kf-c);background:var(--kf-c);color:var(--kf-ct);
+}
+.kf-btn:hover{filter:brightness(.93);}
+.kf-btn[disabled]{opacity:.65;cursor:progress;}
+.kf-btn-2{background:transparent;color:var(--kf-txt);border-color:var(--kf-bd);}
+.kf-btn-2:hover{filter:none;background:var(--kf-soft);}
+.kf-spacer{flex:1 1 auto;}
+
+/* Bandeaux d'état */
+.kf-root .kf-alert{margin-top:16px;padding:12px 14px;border-radius:9px;font-size:.93rem;
+  border:1px solid var(--kf-err);color:var(--kf-err);background:#fdf3f2;font-weight:600;}
+.kf-done{padding:8px 0;}
+.kf-root .kf-done-t{font-size:1.15rem;font-weight:700;color:var(--kf-ok);margin:0 0 8px;}
+.kf-root .kf-done-p{margin:0 0 16px;color:var(--kf-txt);}
+.kf-cta{display:inline-block;min-height:48px;padding:13px 22px;border-radius:9px;
+  background:var(--kf-c);color:var(--kf-ct);text-decoration:none;font-weight:600;}
+
+@media (max-width:400px){
+  .kf-root{padding:22px 16px 18px;border-radius:10px;}
+  .kf-btn{width:100%;}
+  .kf-spacer{display:none;}
+}
+</style>
+
+<div class="kf-root" id="kf-root"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================================================
+     ===============        BLOC DE CONFIGURATION        =================
+     ===  Seule zone à modifier pour un nouveau client (voir la note   ===
+     ===  en bas de fichier).                                          ===
+     ===================================================================== */
+  var CONFIG = {
+
+    // 1) Destination des réponses (webhook n8n en production)
+    webhook: "https://jeantest28.app.n8n.cloud/webhook/A-REMPLACER-PATH",
+
+    // 2) Identité visuelle du client
+    marque: {
+      nom: "KinoLabs — essai",
+      logo: "",                       // URL https ou data URI ; "" = pas de logo
+      couleur: "#1f6feb",             // couleur des boutons, focus, barre
+      couleurTexte: "#ffffff"         // texte posé sur cette couleur
+    },
+
+    // 3) Titre du formulaire
+    titre: "Formulaire d'essai — ne pas diffuser",
+    sousTitre: "Page de test du parcours bout-en-bout. Aucune demande réelle ici.",
+
+    // 4) Traçabilité (repris tels quels dans l'envoi)
+    suivi: {
+      source: "essai-bout-en-bout",
+      source_id: "",
+      client_id: ""
+    },
+
+    // 5) Étapes et champs
+    etapes: [
+      {
+        titre: "Votre besoin",
+        champs: [
+          {
+            cle: "request_type", label: "De quoi avez-vous besoin ?", type: "radio",
+            obligatoire: true,
+            options: [
+              "Demande de devis",
+              "Informations sur une prestation",
+              "Prise de rendez-vous",
+              "Partenariat",
+              "Support",
+              "Autre"
+            ]
+          },
+          {
+            cle: "budget", label: "Budget envisagé", type: "select",
+            obligatoire: false, aide: "Une fourchette suffit. Laissez vide si vous ne savez pas encore.",
+            showIf: { cle: "request_type", vaut: ["Demande de devis"] },
+            options: [
+              "Moins de 500 €",
+              "500 € à 1 000 €",
+              "1 000 € à 2 500 €",
+              "2 500 € à 5 000 €",
+              "Plus de 5 000 €"
+            ]
+          },
+          {
+            cle: "deadline", label: "Délai souhaité", type: "radio",
+            obligatoire: false,
+            showIf: { cle: "request_type", vaut: ["Demande de devis"] },
+            options: [
+              "Dès que possible",
+              "Moins de 1 mois",
+              "1 à 3 mois",
+              "3 à 6 mois",
+              "Plus de 6 mois"
+            ]
+          }
+        ]
+      },
+      {
+        titre: "Vos coordonnées",
+        champs: [
+          { cle: "name", label: "Nom et prénom", type: "text", obligatoire: true },
+          { cle: "email", label: "Adresse e-mail", type: "email", obligatoire: true },
+          { cle: "phone", label: "Téléphone", type: "tel", obligatoire: false, aide: "Format français, avec ou sans espaces." },
+          { cle: "company", label: "Société", type: "text", obligatoire: false }
+        ]
+      },
+      {
+        titre: "Votre message",
+        champs: [
+          {
+            cle: "message", label: "Décrivez votre demande", type: "textarea",
+            obligatoire: true, longueurMin: 20,
+            aide: "Quelques phrases suffisent : contexte, lieu, échéance."
+          }
+        ]
+      }
+    ],
+
+    // 6) Messages
+    messages: {
+      envoi: "Envoi en cours…",
+      succes: "Merci, votre demande est bien arrivée. Nous revenons vers vous très vite.",
+      erreur: "L'envoi n'a pas abouti. Vérifiez votre connexion et réessayez : vos réponses sont conservées."
+    },
+
+    // 7) Après un envoi réussi
+    apresEnvoi: {
+      redirection: null,              // "https://…/merci" ou null
+      lienRdv: null,                  // "https://cal.com/…" ou null
+      texteLienRdv: "Réserver un rendez-vous"
+    },
+
+    // 8) Consentement RGPD
+    rgpd: {
+      actif: true,
+      texte: "J'accepte que mes informations soient utilisées pour traiter ma demande.",
+      lienPolitique: ""               // "https://…/politique-confidentialite" ou ""
+    },
+
+    // 9) Libellés des boutons (optionnel)
+    boutons: { precedent: "Précédent", suivant: "Suivant", envoyer: "Envoyer ma demande" },
+
+    // 10) Version du formulaire, transmise à chaque envoi
+    formVersion: "KinoLabs_Form_Page_v1"
+  };
+  /* ===============      FIN DE LA CONFIGURATION      =================== */
+
+
+  /* ---------------------------------------------------------------
+     Moteur — normalement, rien à modifier en dessous de cette ligne.
+     --------------------------------------------------------------- */
+
+  var CANON = ["name", "email", "phone", "company", "request_type", "budget", "deadline", "message"];
+  var DELAI_MAX = 15000;      // délai maximum d'un envoi (ms)
+  var DELAI_ROBOT = 3000;     // en dessous, c'est un robot (ms)
+
+  var root = document.getElementById("kf-root");
+  if (!root) return;
+
+  var ouvertureLe = Date.now();
+  var champs = {};            // cle -> { def, wrap, err, inputs }
+  var etapesDom = [];         // éléments DOM des étapes
+  var etapeCourante = 0;
+  var envoiEnCours = false;
+  var uid = "kf" + Math.random().toString(36).slice(2, 8);
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function opt(o) {
+    if (o && typeof o === "object") return { valeur: String(o.valeur), label: String(o.label != null ? o.label : o.valeur) };
+    return { valeur: String(o), label: String(o) };
+  }
+  function txt(v, def) { return (typeof v === "string" && v.length) ? v : def; }
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  /* ---------- Construction ---------- */
+
+  function construire() {
+    root.innerHTML = "";
+    root.style.setProperty("--kf-c", CONFIG.marque && CONFIG.marque.couleur ? CONFIG.marque.couleur : "#1f6feb");
+    root.style.setProperty("--kf-ct", CONFIG.marque && CONFIG.marque.couleurTexte ? CONFIG.marque.couleurTexte : "#ffffff");
+
+    // En-tête
+    var m = CONFIG.marque || {};
+    if (m.logo || m.nom) {
+      var head = el("div", "kf-head");
+      if (m.logo) {
+        var img = document.createElement("img");
+        img.className = "kf-logo";
+        img.src = m.logo;
+        img.alt = m.nom ? m.nom : "";
+        img.onerror = function () {           // logo introuvable : on retombe sur le nom
+          if (img.parentNode) img.parentNode.removeChild(img);
+          if (m.nom) head.appendChild(el("span", "kf-brand", esc(m.nom)));
+        };
+        head.appendChild(img);
+      } else {
+        head.appendChild(el("span", "kf-brand", esc(m.nom)));
+      }
+      root.appendChild(head);
+    }
+    if (CONFIG.titre) {
+      var t = el("p", "kf-title", esc(CONFIG.titre));
+      t.setAttribute("role", "heading");
+      t.setAttribute("aria-level", "2");
+      root.appendChild(t);
+    }
+    if (CONFIG.sousTitre) root.appendChild(el("p", "kf-sub", esc(CONFIG.sousTitre)));
+
+    // Progression
+    var prog = el("p", "kf-prog");
+    prog.id = uid + "-prog";
+    prog.setAttribute("aria-live", "polite");
+    var bar = el("div", "kf-bar");
+    var barIn = el("div", "kf-bar-in");
+    bar.appendChild(barIn);
+    root.appendChild(prog);
+    root.appendChild(bar);
+
+    // Formulaire
+    var form = document.createElement("form");
+    form.className = "kf-form";
+    form.setAttribute("novalidate", "novalidate");
+    form.setAttribute("autocomplete", "on");
+
+    (CONFIG.etapes || []).forEach(function (etape, i) {
+      var d = el("div", "kf-step");
+      d.setAttribute("data-step", String(i));
+      if (etape.titre) {
+        var st = el("p", "kf-step-title", esc(etape.titre));
+        st.setAttribute("role", "heading");
+        st.setAttribute("aria-level", "3");
+        d.appendChild(st);
+      }
+      (etape.champs || []).forEach(function (f) { d.appendChild(construireChamp(f)); });
+      etapesDom.push(d);
+      form.appendChild(d);
+    });
+
+    // Consentement RGPD (dernière étape)
+    var rgpdWrap = null;
+    if (CONFIG.rgpd && CONFIG.rgpd.actif) {
+      rgpdWrap = el("div", "kf-field kf-rgpd");
+      var idC = uid + "-rgpd";
+      var lab = el("label", "kf-opt");
+      lab.setAttribute("for", idC);
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.id = idC; cb.name = "rgpd";
+      var span = el("span", null, esc(CONFIG.rgpd.texte || "J'accepte l'utilisation de mes informations pour traiter ma demande.") + " <span class=\"kf-req\" aria-hidden=\"true\">*</span>");
+      if (CONFIG.rgpd.lienPolitique) {
+        span.innerHTML += " <a href=\"" + esc(CONFIG.rgpd.lienPolitique) + "\" target=\"_blank\" rel=\"noopener\">Politique de confidentialité</a>";
+      }
+      lab.appendChild(cb); lab.appendChild(span);
+      var errR = el("p", "kf-msg-err kf-hidden");
+      errR.id = idC + "-err";
+      errR.setAttribute("role", "alert");
+      cb.setAttribute("aria-describedby", errR.id);
+      rgpdWrap.appendChild(lab); rgpdWrap.appendChild(errR);
+      champs["__rgpd"] = { def: { cle: "__rgpd", type: "checkbox", obligatoire: true, label: "Consentement" }, wrap: rgpdWrap, err: errR, inputs: [cb] };
+    }
+
+    // Piège à robots
+    var hp = el("div", "kf-hp");
+    hp.setAttribute("aria-hidden", "true");
+    var hpLab = document.createElement("label");
+    hpLab.setAttribute("for", uid + "-website");
+    hpLab.textContent = "Ne pas remplir";
+    var hpIn = document.createElement("input");
+    hpIn.type = "text"; hpIn.id = uid + "-website"; hpIn.name = "website";
+    hpIn.setAttribute("autocomplete", "off");
+    hpIn.setAttribute("tabindex", "-1");
+    hp.appendChild(hpLab); hp.appendChild(hpIn);
+    form.appendChild(hp);
+
+    // Barre de navigation
+    var nav = el("div", "kf-nav");
+    var bPrev = el("button", "kf-btn kf-btn-2", esc(txt(CONFIG.boutons && CONFIG.boutons.precedent, "Précédent")));
+    bPrev.type = "button";
+    var bNext = el("button", "kf-btn", esc(txt(CONFIG.boutons && CONFIG.boutons.suivant, "Suivant")));
+    bNext.type = "button";
+    var bSend = el("button", "kf-btn", esc(txt(CONFIG.boutons && CONFIG.boutons.envoyer, "Envoyer")));
+    bSend.type = "submit";
+    nav.appendChild(bPrev);
+    nav.appendChild(el("span", "kf-spacer"));
+    nav.appendChild(bNext);
+    nav.appendChild(bSend);
+
+    var alerte = el("p", "kf-alert kf-hidden");
+    alerte.setAttribute("role", "alert");
+
+    if (rgpdWrap) form.appendChild(rgpdWrap);
+    form.appendChild(nav);
+    form.appendChild(alerte);
+    root.appendChild(form);
+
+    // Mémorisation des références utiles
+    root._kf = {
+      form: form, prog: prog, barIn: barIn, nav: nav,
+      bPrev: bPrev, bNext: bNext, bSend: bSend, alerte: alerte, hp: hpIn, rgpdWrap: rgpdWrap
+    };
+
+    // Interactions
+    form.addEventListener("submit", function (e) { e.preventDefault(); envoyer(); });
+    bNext.addEventListener("click", function () { avancer(1); });
+    bPrev.addEventListener("click", function () { avancer(-1); });
+    form.addEventListener("change", function () { rafraichirVisibilite(); });
+    form.addEventListener("input", function (e) {
+      var f = trouverChampParInput(e.target);
+      if (f && f.wrap.classList.contains("kf-invalid")) nettoyerErreur(f);
+    });
+
+    rafraichirVisibilite();
+    aller(premiereEtapeVisible());
+  }
+
+  function construireChamp(f) {
+    var wrap = el("div", "kf-field");
+    wrap.setAttribute("data-cle", f.cle);
+    var id = uid + "-" + f.cle;
+    var idAide = id + "-aide";
+    var idErr = id + "-err";
+    var decrit = [];
+    if (f.aide) decrit.push(idAide);
+    decrit.push(idErr);
+    var etoile = f.obligatoire ? " <span class=\"kf-req\" aria-hidden=\"true\">*</span>" : "";
+    var inputs = [];
+
+    if (f.type === "radio" || (f.type === "checkbox" && f.options && f.options.length)) {
+      var set = el("fieldset", "kf-set");
+      set.setAttribute("role", "group");
+      set.setAttribute("aria-describedby", decrit.join(" "));
+      var lg = el("legend", "kf-legend", esc(f.label) + etoile);
+      set.appendChild(lg);
+      if (f.aide) { var a1 = el("span", "kf-help", esc(f.aide)); a1.id = idAide; set.appendChild(a1); }
+      (f.options || []).map(opt).forEach(function (o, k) {
+        var oid = id + "-" + k;
+        var lab = el("label", "kf-opt");
+        lab.setAttribute("for", oid);
+        var inp = document.createElement("input");
+        inp.type = (f.type === "radio") ? "radio" : "checkbox";
+        inp.name = id;
+        inp.id = oid;
+        inp.value = o.valeur;
+        lab.appendChild(inp);
+        lab.appendChild(el("span", null, esc(o.label)));
+        set.appendChild(lab);
+        inputs.push(inp);
+      });
+      // Un bouton radio ne se déscoche pas : les groupes facultatifs reçoivent
+      // un lien « effacer », sans quoi un clic accidentel est définitif.
+      if (f.type === "radio" && !f.obligatoire) {
+        var clr = el("button", "kf-clear", "Effacer ce choix");
+        clr.type = "button";
+        clr.setAttribute("aria-label", "Effacer le choix : " + f.label);
+        inputs.forEach(function (x) {
+          x.addEventListener("change", function () { clr.classList.add("kf-on"); });
+        });
+        clr.addEventListener("click", function () {
+          inputs.forEach(function (x) { x.checked = false; });
+          clr.classList.remove("kf-on");
+          if (inputs[0] && inputs[0].focus) inputs[0].focus();
+          rafraichirVisibilite();
+        });
+        set.appendChild(clr);
+      }
+      wrap.appendChild(set);
+    } else if (f.type === "checkbox") {
+      var lab2 = el("label", "kf-opt");
+      lab2.setAttribute("for", id);
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.id = id; cb.name = id;
+      cb.setAttribute("aria-describedby", decrit.join(" "));
+      lab2.appendChild(cb);
+      lab2.appendChild(el("span", null, esc(f.label) + etoile));
+      wrap.appendChild(lab2);
+      if (f.aide) { var a2 = el("span", "kf-help", esc(f.aide)); a2.id = idAide; wrap.appendChild(a2); }
+      inputs.push(cb);
+    } else {
+      var lab3 = el("label", "kf-label", esc(f.label) + etoile);
+      lab3.setAttribute("for", id);
+      wrap.appendChild(lab3);
+      if (f.aide) { var a3 = el("span", "kf-help", esc(f.aide)); a3.id = idAide; wrap.appendChild(a3); }
+      var ctrl;
+      if (f.type === "textarea") {
+        ctrl = document.createElement("textarea");
+        ctrl.className = "kf-ta";
+        ctrl.rows = 5;
+      } else if (f.type === "select") {
+        ctrl = document.createElement("select");
+        ctrl.className = "kf-sel";
+        var o0 = document.createElement("option");
+        o0.value = ""; o0.textContent = txt(f.placeholder, "— Choisir —");
+        ctrl.appendChild(o0);
+        (f.options || []).map(opt).forEach(function (o) {
+          var oo = document.createElement("option");
+          oo.value = o.valeur; oo.textContent = o.label;
+          ctrl.appendChild(oo);
+        });
+      } else {
+        ctrl = document.createElement("input");
+        ctrl.className = "kf-in";
+        ctrl.type = (f.type === "email" || f.type === "tel") ? f.type : "text";
+        if (f.placeholder) ctrl.placeholder = f.placeholder;
+        if (f.cle === "name") ctrl.autocomplete = "name";
+        if (f.type === "email") ctrl.autocomplete = "email";
+        if (f.type === "tel") { ctrl.autocomplete = "tel"; ctrl.setAttribute("inputmode", "tel"); }
+        if (f.cle === "company") ctrl.autocomplete = "organization";
+      }
+      ctrl.id = id;
+      ctrl.name = id;
+      ctrl.setAttribute("aria-describedby", decrit.join(" "));
+      wrap.appendChild(ctrl);
+      inputs.push(ctrl);
+    }
+
+    var err = el("p", "kf-msg-err kf-hidden");
+    err.id = idErr;
+    err.setAttribute("role", "alert");
+    wrap.appendChild(err);
+
+    champs[f.cle] = { def: f, wrap: wrap, err: err, inputs: inputs };
+    return wrap;
+  }
+
+  function trouverChampParInput(node) {
+    for (var k in champs) {
+      if (champs[k].inputs.indexOf(node) !== -1) return champs[k];
+    }
+    return null;
+  }
+
+  /* ---------- Valeurs et visibilité ---------- */
+
+  function valeur(cle) {
+    var f = champs[cle];
+    if (!f) return "";
+    var t = f.def.type;
+    if (t === "radio") {
+      for (var i = 0; i < f.inputs.length; i++) if (f.inputs[i].checked) return f.inputs[i].value;
+      return "";
+    }
+    if (t === "checkbox") {
+      if (f.def.options && f.def.options.length) {
+        var out = [];
+        f.inputs.forEach(function (x) { if (x.checked) out.push(x.value); });
+        return out;
+      }
+      return f.inputs[0].checked;
+    }
+    return String(f.inputs[0].value || "").trim();
+  }
+
+  function visible(f) {
+    var s = f.def.showIf;
+    if (!s || !s.cle) return true;
+    var parent = champs[s.cle];
+    if (parent && !visible(parent)) return false;       // condition en cascade
+    var v = valeur(s.cle);
+    var attendus = Array.isArray(s.vaut) ? s.vaut.map(String) : [String(s.vaut)];
+    if (Array.isArray(v)) return v.some(function (x) { return attendus.indexOf(String(x)) !== -1; });
+    return attendus.indexOf(String(v)) !== -1;
+  }
+
+  function champsDeLEtape(i) {
+    var e = (CONFIG.etapes[i] && CONFIG.etapes[i].champs) || [];
+    return e.map(function (f) { return champs[f.cle]; }).filter(Boolean);
+  }
+
+  function etapeVisible(i) {
+    return champsDeLEtape(i).some(visible);
+  }
+
+  function etapesVisibles() {
+    var out = [];
+    for (var i = 0; i < CONFIG.etapes.length; i++) if (etapeVisible(i)) out.push(i);
+    return out;
+  }
+
+  function premiereEtapeVisible() {
+    var v = etapesVisibles();
+    return v.length ? v[0] : 0;
+  }
+
+  function rafraichirVisibilite() {
+    for (var k in champs) {
+      if (k === "__rgpd") continue;
+      var f = champs[k];
+      var v = visible(f);
+      f.wrap.classList.toggle("kf-hidden", !v);
+      if (!v) nettoyerErreur(f);
+    }
+    majProgression();
+  }
+
+  /* ---------- Navigation ---------- */
+
+  function aller(i) {
+    etapeCourante = i;
+    etapesDom.forEach(function (d, k) { d.classList.toggle("kf-hidden", k !== i); });
+    var r = root._kf;
+    var vis = etapesVisibles();
+    var pos = vis.indexOf(i);
+    var dernier = (pos === -1) || (pos === vis.length - 1);
+    r.bPrev.classList.toggle("kf-hidden", pos <= 0);
+    r.bNext.classList.toggle("kf-hidden", dernier);
+    r.bSend.classList.toggle("kf-hidden", !dernier);
+    if (r.rgpdWrap) r.rgpdWrap.classList.toggle("kf-hidden", !dernier);
+    majProgression();
+  }
+
+  function majProgression() {
+    var r = root._kf;
+    if (!r) return;
+    var vis = etapesVisibles();
+    var pos = vis.indexOf(etapeCourante);
+    var n = vis.length || 1;
+    var num = (pos === -1 ? 1 : pos + 1);
+    r.prog.textContent = "Étape " + num + " sur " + n;
+    r.barIn.style.width = Math.round((num / n) * 100) + "%";
+  }
+
+  function avancer(sens) {
+    var r = root._kf;
+    r.alerte.classList.add("kf-hidden");
+    if (sens > 0 && !validerEtape(etapeCourante)) return;
+    rafraichirVisibilite();
+    var vis = etapesVisibles();
+    var pos = vis.indexOf(etapeCourante);
+    if (pos === -1) { aller(premiereEtapeVisible()); return; }
+    var cible = vis[pos + sens];
+    if (cible == null) return;
+    aller(cible);
+    var premier = etapesDom[cible].querySelector(".kf-field:not(.kf-hidden) input, .kf-field:not(.kf-hidden) select, .kf-field:not(.kf-hidden) textarea");
+    if (premier) premier.focus();
+    if (root.scrollIntoView) root.scrollIntoView({ block: "start" });
+  }
+
+  /* ---------- Validation ---------- */
+
+  var RE_EMAIL = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+  var RE_TEL = /^(?:\+33|0033|0)[1-9]\d{8}$/;
+
+  function nettoyerErreur(f) {
+    f.wrap.classList.remove("kf-invalid");
+    f.err.classList.add("kf-hidden");
+    f.err.textContent = "";
+    f.inputs.forEach(function (x) { x.removeAttribute("aria-invalid"); });
+    var set = f.wrap.querySelector("fieldset");
+    if (set) set.removeAttribute("aria-invalid");
+  }
+
+  function poserErreur(f, msg) {
+    f.wrap.classList.add("kf-invalid");
+    f.err.textContent = msg;
+    f.err.classList.remove("kf-hidden");
+    f.inputs.forEach(function (x) { x.setAttribute("aria-invalid", "true"); });
+    var set = f.wrap.querySelector("fieldset");
+    if (set) set.setAttribute("aria-invalid", "true");
+  }
+
+  function verifier(f) {
+    var d = f.def, v = valeur(d.cle);
+    var vide = (v === "" || v === false || (Array.isArray(v) && v.length === 0));
+    if (d.obligatoire && vide) {
+      if (d.type === "checkbox" && !(d.options && d.options.length)) return "Merci de cocher cette case.";
+      if (d.type === "radio" || d.type === "select" || d.type === "checkbox") return "Merci de choisir une réponse.";
+      return "Ce champ est obligatoire.";
+    }
+    if (vide) return null;
+    if (d.type === "email" && !RE_EMAIL.test(String(v))) return "Adresse e-mail invalide (exemple : nom@domaine.fr).";
+    if (d.type === "tel") {
+      var brut = String(v).replace(/[\s.\-()\/]/g, "");
+      if (!RE_TEL.test(brut)) return "Numéro invalide. Exemples : 06 12 34 56 78 ou +33 6 12 34 56 78.";
+    }
+    if (d.type === "textarea") {
+      var min = d.longueurMin != null ? d.longueurMin : 20;
+      if (String(v).length < min) return "Merci de détailler un peu plus (" + min + " caractères minimum).";
+    }
+    if (d.type === "text" && d.longueurMin && String(v).length < d.longueurMin) {
+      return "Merci de saisir au moins " + d.longueurMin + " caractères.";
+    }
+    return null;
+  }
+
+  function validerListe(liste) {
+    var premierEnErreur = null;
+    liste.forEach(function (f) {
+      nettoyerErreur(f);
+      if (!visible(f)) return;
+      var msg = verifier(f);
+      if (msg) {
+        poserErreur(f, msg);
+        if (!premierEnErreur) premierEnErreur = f;
+      }
+    });
+    if (premierEnErreur) {
+      var cible = premierEnErreur.inputs[0];
+      if (cible && cible.focus) cible.focus();
+      return false;
+    }
+    return true;
+  }
+
+  function validerEtape(i) { return validerListe(champsDeLEtape(i)); }
+
+  function validerTout() {
+    var liste = [];
+    etapesVisibles().forEach(function (i) { liste = liste.concat(champsDeLEtape(i)); });
+    if (champs["__rgpd"]) liste.push(champs["__rgpd"]);
+    return validerListe(liste);
+  }
+
+  /* ---------- Envoi ---------- */
+
+  function construireCorps() {
+    var suivi = CONFIG.suivi || {};
+    var corps = {
+      name: "", email: "", phone: "", company: "",
+      request_type: "", budget: "", deadline: "", message: "",
+      source: suivi.source || "",
+      submitted_at: new Date().toISOString(),
+      source_id: suivi.source_id || "",
+      client_id: suivi.client_id || "",
+      form_version: CONFIG.formVersion || "",
+      extra: {}
+    };
+    etapesVisibles().forEach(function (i) {
+      champsDeLEtape(i).forEach(function (f) {
+        if (!visible(f)) return;
+        var v = valeur(f.def.cle);
+        if (CANON.indexOf(f.def.cle) !== -1) {
+          corps[f.def.cle] = Array.isArray(v) ? v.join(", ") : (v === true ? "oui" : (v === false ? "" : String(v)));
+        } else {
+          corps.extra[f.def.cle] = v;
+        }
+      });
+    });
+    if (CONFIG.rgpd && CONFIG.rgpd.actif) corps.extra.consentement_rgpd = valeur("__rgpd") === true;
+    return corps;
+  }
+
+  function poster(corps) {
+    return new Promise(function (resolve, reject) {
+      var essai = 0;
+      function tenter() {
+        essai++;
+        var ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+        var minuteur = setTimeout(function () { if (ctrl) ctrl.abort(); }, DELAI_MAX);
+        var options = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(corps)
+        };
+        if (ctrl) options.signal = ctrl.signal;
+        fetch(CONFIG.webhook, options).then(function (r) {
+          clearTimeout(minuteur);
+          if (!r.ok) { var e = new Error("HTTP " + r.status); e.kfHttp = true; throw e; }
+          resolve(true);
+        }).catch(function (err) {
+          clearTimeout(minuteur);
+          // Une seule nouvelle tentative, et seulement en cas d'échec réseau
+          if (!err.kfHttp && essai < 2) { setTimeout(tenter, 800); return; }
+          reject(err);
+        });
+      }
+      tenter();
+    });
+  }
+
+  function envoyer() {
+    if (envoiEnCours) return;
+    var r = root._kf;
+    r.alerte.classList.add("kf-hidden");
+    if (!validerTout()) return;
+
+    // Anti-robot : piège rempli ou formulaire expédié trop vite
+    var piege = r.hp && r.hp.value !== "";
+    var tropVite = (Date.now() - ouvertureLe) < DELAI_ROBOT;
+    if (piege || tropVite) { succes(true); return; }
+
+    envoiEnCours = true;
+    r.bSend.disabled = true;
+    r.bPrev.disabled = true;
+    var libelle = r.bSend.textContent;
+    r.bSend.textContent = txt(CONFIG.messages && CONFIG.messages.envoi, "Envoi en cours…");
+    r.bSend.setAttribute("aria-busy", "true");
+
+    poster(construireCorps()).then(function () {
+      succes(false);
+    }).catch(function () {
+      envoiEnCours = false;
+      r.bSend.disabled = false;
+      r.bPrev.disabled = false;
+      r.bSend.textContent = libelle;
+      r.bSend.removeAttribute("aria-busy");
+      r.alerte.textContent = txt(CONFIG.messages && CONFIG.messages.erreur, "L'envoi n'a pas abouti. Réessayez : vos réponses sont conservées.");
+      r.alerte.classList.remove("kf-hidden");
+      r.alerte.scrollIntoView && r.alerte.scrollIntoView({ block: "nearest" });
+    });
+  }
+
+  function succes(silencieux) {
+    var ap = CONFIG.apresEnvoi || {};
+    var bloc = el("div", "kf-done");
+    bloc.setAttribute("role", "status");
+    bloc.setAttribute("tabindex", "-1");
+    bloc.appendChild(el("p", "kf-done-t", "Merci !"));
+    bloc.appendChild(el("p", "kf-done-p", esc(txt(CONFIG.messages && CONFIG.messages.succes, "Votre demande est bien arrivée."))));
+    if (!silencieux && ap.lienRdv) {
+      var a = el("a", "kf-cta", esc(txt(ap.texteLienRdv, "Prendre rendez-vous")));
+      a.href = ap.lienRdv;
+      a.rel = "noopener";
+      bloc.appendChild(a);
+    }
+    var r = root._kf;
+    r.form.classList.add("kf-hidden");
+    r.prog.classList.add("kf-hidden");
+    var bar = root.querySelector(".kf-bar");
+    if (bar) bar.classList.add("kf-hidden");
+    root.appendChild(bloc);
+    bloc.focus && bloc.focus();
+    if (!silencieux && ap.redirection) {
+      setTimeout(function () { window.location.href = ap.redirection; }, 1200);
+    }
+  }
+
+  /* ---------- Démarrage ---------- */
+
+  // Le zoom mobile n'est réglé que si la page hôte n'a rien prévu (ouverture du fichier seul).
+  if (!document.querySelector('meta[name="viewport"]')) {
+    var mv = document.createElement("meta");
+    mv.name = "viewport";
+    mv.content = "width=device-width, initial-scale=1";
+    (document.head || document.documentElement).appendChild(mv);
+  }
+
+  construire();
+})();
+</script>
+
+<!-- ============================================================
+     POUR UN NOUVEAU CLIENT : ne touchez qu'à l'objet CONFIG.
+     1. webhook  : collez l'URL de production du webhook n8n du client.
+     2. marque   : nom, logo (URL ou data URI), couleur, couleurTexte.
+     3. titre / sousTitre : l'accroche affichée en haut.
+     4. suivi    : source, source_id, client_id (identifiants de suivi).
+     5. etapes   : ajoutez ou retirez des étapes et des champs. Gardez les
+        clés name, email, phone, company, request_type, budget, deadline,
+        message : elles partent telles quelles. Toute autre clé part dans extra.
+     6. showIf   : { cle:"request_type", vaut:["Demande de devis"] } n'affiche
+        le champ que si la réponse correspond, au libellé exact. Une étape
+        entièrement masquée est sautée.
+     6 bis. Les libellés de request_type, budget et deadline sont le contrat
+        d'entrée du moteur de qualification : ils doivent rester identiques à
+        ceux du Form Trigger n8n, sur lesquels les seuils sont calibrés.
+     7. messages / apresEnvoi / rgpd / formVersion : textes, redirection, RDV.
+     Collez ensuite le fichier entier dans un bloc HTML (WordPress, Elementor,
+     Wix, Webflow). Côté n8n, autorisez l'origine du site (CORS) sur le webhook.
+     ============================================================ -->
